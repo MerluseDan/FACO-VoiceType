@@ -1,0 +1,25 @@
+{
+  "module_id": "faco.voicetype",
+  "version": "1.2.1",
+  "provider": "FACO VoiceType",
+  "capabilities": [
+    {
+      "id": "faco.speech.dictate_to_focus",
+      "name": "Dictate to focused field",
+      "status": "ready",
+      "local": true
+    },
+    {
+      "id": "faco.input.mouse_enter_submit",
+      "name": "Mouse mapped Enter/Submit",
+      "status": "ready",
+      "local": true
+    },
+    {
+      "id": "faco.speech.expressive_punctuation",
+      "name": "Expressive punctuation",
+      "status": "ready",
+      "local": true
+    }
+  ]
+}

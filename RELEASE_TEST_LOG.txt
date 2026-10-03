@@ -1,0 +1,51 @@
+FACO VoiceType v1.2.1 release validation log
+Validated 2026-10-03
+
+== Python compileall ==
+PASS
+
+== Bash syntax ==
+PASS
+
+== Pytest regression run 1 ==
+36 passed
+
+== Pytest regression run 2 ==
+36 passed
+
+== Pytest regression run 3 ==
+36 passed
+
+== Canonical installer simulation ==
+PASS
+- non-root user
+- legacy install path contained spaces
+- canonical FACO root contained spaces
+- old .venv discovered and migrated
+- existing config migrated into _state/apps/voicetype
+- compatibility symlink created
+- source deployed into FACO/apps/voicetype
+- shared runtime deployed into _shared/environments/faco-voicetype
+- registry manifests written
+- old heavyweight .venv removed only after validation
+- canonical autostart written
+- both Enter prompts exercised
+- final progress reached exactly 100% (11/11)
+
+== Dependency reuse validation ==
+PASS
+- system packages checked before apt
+- apt runs only for missing packages
+- Python requirements checked with --no-index first
+- system/shared/cached/runtime CUDA paths checked before network fallback
+- explicit FACO_RESOURCE_ROOT remained authoritative during model discovery
+
+== Public release archive ==
+PASS
+- generated versioned tar.gz and SHA-256 checksum
+- checksum verification passed
+- cache, runtime, model, state and log artifacts excluded
+- exact extracted archive passed Python compilation and Bash syntax checks
+- exact extracted archive passed 36/36 automated tests
+
+Host-specific hardware/UI checks remain delegated to selftest.py + diagnose.sh on the target workstation.
