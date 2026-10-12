@@ -24,7 +24,7 @@ const GLib={PRIORITY_DEFAULT:0,SOURCE_CONTINUE:true,
   Source:{remove(x){assert.equal(x,21);removedTimer=true;}},
   getenv(){return '/run/user/1000';},
   get_user_runtime_dir(){return '/run/user/1000'},
-  get_home_dir(){return '/home/owner';},
+  get_home_dir(){return '/home/example';},
   build_filenamev(parts){return parts.join('/')},
   FileTest:{EXISTS:1},file_test(){return true},
 };
@@ -41,7 +41,7 @@ ext.enable();
 assert.equal(installed.index,0,'indicator must be before clock');
 assert.match(ext._label.text,/CPU 28% 56° RAM 55% GPU 87% 62° VRAM 4.0G\/16.0G/);
 installed.button.events.clicked();
-assert.equal(launched[0],'/home/owner/.local/bin/faco-resource-watch');
+assert.equal(launched[0],'/home/example/.local/bin/faco-resource-watch');
 assert.equal(launched[1],'open');
 data.ts=ts-30;action();assert.equal(ext._label.text,'FACO: OFFLINE');
 data=null;action();assert.equal(ext._label.text,'FACO: STARTING…');
