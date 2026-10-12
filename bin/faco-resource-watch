@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Resolve symlinks so ~/.local/bin points to the installed application."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from faco_watch.cli import main
+sys.exit(main())

@@ -1,0 +1,7 @@
+{
+  "uuid": "faco-resource-watch@faco.local",
+  "name": "FACO Resource Watch",
+  "description": "CPU, RAM, GPU, VRAM and temperature readout immediately before the GNOME top-bar clock. Click to open local history dashboard.",
+  "shell-version": ["45", "46", "47", "48", "49"],
+  "version": 3
+}

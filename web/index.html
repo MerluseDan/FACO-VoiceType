@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>FACO Resource Watch</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+<main id="app" class="shell">
+  <header class="masthead">
+    <div class="brand"><div class="mark" aria-hidden="true">∞</div><div>
+      <div class="eyebrow">FACO / SYSTEM INTELLIGENCE</div>
+      <h1>Resource Watch</h1>
+      <p class="tagline">One-second live telemetry. Every component, recorded locally.</p>
+    </div></div>
+    <div class="header-tools">
+      <div class="conn offline" id="connection" role="status" aria-live="polite"><i class="status-dot" aria-hidden="true"></i><span>Connecting to collector</span></div>
+      <button class="secondary" type="button" id="exportBtn" title="Export the selected period for all recorded components and GPU process history">↓ Export history</button>
+      <button class="secondary" type="button" id="pauseBtn" aria-pressed="false">Ⅱ <span>Pause display</span></button>
+    </div>
+  </header>
+  <section aria-label="Select a component to inspect its history and current applications" class="metrics" id="metrics">
+    <button type="button" class="metric selected" data-metric="cpu" aria-pressed="true"><span class="metric-label">PROCESSOR <span class="live-dot"></span></span><strong id="cpuValue">—</strong><small id="cpuExtra">Across all CPU cores</small><span class="mini-bar"><span id="cpuBar"></span></span><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="ram" aria-pressed="false"><span class="metric-label">SYSTEM MEMORY</span><strong id="ramValue">—</strong><small id="ramExtra">RAM used</small><span class="mini-bar"><span id="ramBar"></span></span><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="gpu" aria-pressed="false"><span class="metric-label">GRAPHICS PROCESSOR</span><strong id="gpuValue">—</strong><small id="gpuExtra">GPU utilization</small><span class="mini-bar"><span id="gpuBar"></span></span><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="vram" aria-pressed="false"><span class="metric-label">VIDEO MEMORY</span><strong id="vramValue">—</strong><small id="vramExtra">GPU memory allocation</small><span class="mini-bar"><span id="vramBar"></span></span><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="cpuTemp" aria-pressed="false"><span class="metric-label">CPU TEMPERATURE</span><strong id="cpuTempValue">—</strong><small id="cpuTempExtra">CPU package sensor</small><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="gpuTemp" aria-pressed="false"><span class="metric-label">GPU TEMPERATURE</span><strong id="gpuTempValue">—</strong><small id="gpuTempExtra">GPU core sensor</small><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="encode" aria-pressed="false"><span class="metric-label">VIDEO ENCODER</span><strong id="encodeValue">—</strong><small id="encodeExtra">Hardware encoding activity</small><span class="mini-bar"><span id="encodeBar"></span></span><span class="metric-open">VIEW HISTORY ↗</span></button>
+    <button type="button" class="metric" data-metric="decode" aria-pressed="false"><span class="metric-label">VIDEO DECODER</span><strong id="decodeValue">—</strong><small id="decodeExtra">Hardware decoding activity</small><span class="mini-bar"><span id="decodeBar"></span></span><span class="metric-open">VIEW HISTORY ↗</span></button>
+  </section>
+  <section class="activity" aria-labelledby="detailTitle">
+    <div class="section-top">
+      <div>
+        <div class="eyebrow" id="detailEyebrow">COMPONENT / PROCESSOR</div>
+        <h2 id="detailTitle">Processor history</h2>
+        <p class="subtext" id="detailDescription">Total processor utilization over time.</p>
+      </div>
+      <div class="timeline-controls">
+        <label class="gpu-choice" id="gpuChoice">GPU device
+          <select id="gpuSelect" aria-label="Graphics device"><option value="0">Detecting…</option></select>
+        </label>
+        <div class="range-pills" role="group" aria-label="History time scale">
+          <button type="button" data-range="15" title="One reading per second across the last 15 seconds" aria-pressed="false">1s live</button>
+          <button type="button" data-range="60" aria-pressed="false">1m</button>
+          <button type="button" data-range="1800" aria-pressed="false">30m</button>
+          <button type="button" data-range="3600" class="active" aria-pressed="true">1h</button>
+          <button type="button" data-range="21600" aria-pressed="false">6h</button>
+          <button type="button" data-range="86400" aria-pressed="false">24h</button>
+          <button type="button" data-range="604800" aria-pressed="false">7d</button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <article class="chart-card">
+        <div class="chart-top"><h3 id="chartTitle">CPU utilization</h3><div class="legend" id="chartLegend"><span><i class="swatch"></i>Average</span></div></div>
+        <div class="canvas-wrap"><canvas id="detailChart" role="img" aria-label="Historical values of the selected component"></canvas><div class="hover-tip" id="detailTip" hidden></div></div>
+        <div class="chart-foot"><span id="chartUnit">UTILIZATION %</span><span id="bucketHint">Recording local telemetry…</span></div>
+      </article>
+      <article class="apps-card" aria-labelledby="activeTitle">
+        <div class="chart-top"><div><h3 id="activeTitle">Using CPU now</h3><p id="activeDescription" class="subtext">CPU %: 100% means one logical core.</p></div><span class="live-badge">● LIVE</span></div>
+        <label class="search-field"><span class="visually-hidden">Search current processes</span><span aria-hidden="true">⌕</span><input type="search" id="filterLive" placeholder="Filter app or PID" autocomplete="off"></label>
+        <div class="table-scroll"><table class="live-table"><thead id="liveHead"><tr><th>Application</th><th>PID</th><th>CPU</th><th>RAM</th></tr></thead><tbody id="liveRows"><tr><td colspan="4" class="empty-cell">Waiting for live processes…</td></tr></tbody></table></div>
+        <div class="table-footer"><span id="liveCount">Waiting for snapshot</span><button type="button" class="link-button" id="moreLiveBtn" hidden>Show more</button></div>
+      </article>
+    </div>
+    <div class="timeline-note"><span id="deviceHint">Checking sensor and driver availability…</span><span id="lastUpdate">Waiting for live readings</span></div>
+    <p class="fineprint" id="sourceNote">CPU usage and CPU temperature are system-wide readings; individual applications cannot be assigned an exact temperature.</p>
+  </section>
+  <details class="app-section" id="gpuHistorySection" hidden>
+    <summary><span class="summary-icon" aria-hidden="true">⌄</span><span><b>GPU application history</b><small>Past GPU processes and per-application charts · Optional details</small></span><span class="summary-count" id="historyCount">0 recorded</span></summary>
+    <div class="history-content">
+      <div class="section-top"><p class="subtext">Observed GPU contexts during the selected time scale. GPU SM activity is not the same as VRAM allocation.</p><label class="search-field"><span class="visually-hidden">Search historical GPU processes</span><span aria-hidden="true">⌕</span><input type="search" id="filterHistory" placeholder="Filter past apps" autocomplete="off"></label></div>
+      <div class="table-scroll"><table class="history-table"><thead><tr>
+        <th scope="col"><button type="button" data-history-sort="name">Application ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="pid">PID ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="kind">Context ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="avg_sm_percent">Avg GPU SM ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="peak_sm_percent">Peak GPU SM ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="peak_vram_bytes">Peak VRAM ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="observations">Samples ↕</button></th>
+        <th scope="col"><button type="button" data-history-sort="last_seen">Last seen ↕</button></th>
+      </tr></thead><tbody id="historyRows"><tr><td colspan="8" class="empty-cell">Waiting for GPU process records…</td></tr></tbody></table></div>
+      <div class="table-footer"><span id="historyFooter">Select a row to inspect its activity.</span></div>
+      <section class="inspect" id="inspect" hidden aria-labelledby="inspectTitle">
+        <div class="section-top"><div><div class="eyebrow">SELECTED / HISTORICAL PROCESS</div><h2 id="inspectTitle">Process timeline</h2><p id="inspectMeta" class="subtext"></p></div><button type="button" class="secondary" id="closeInspect">Close details ×</button></div>
+        <div class="inspect-grid">
+          <article class="chart-card"><h3>GPU SM activity (%)</h3><div class="canvas-wrap small"><canvas id="procSmChart" role="img" aria-label="Selected process GPU activity"></canvas><div class="hover-tip" id="procSmTip" hidden></div></div></article>
+          <article class="chart-card"><h3>Video memory allocated (GiB)</h3><div class="canvas-wrap small"><canvas id="procMemChart" role="img" aria-label="Selected process video memory"></canvas><div class="hover-tip" id="procMemTip" hidden></div></div></article>
+        </div>
+      </section>
+    </div>
+  </details>
+  <footer class="footer"><span>FACO RESOURCE WATCH <b>•</b> PRIVATE LOCAL TELEMETRY</span><span id="footerDiag">1-second collection · 7-day history · Background service independent of dashboard</span></footer>
+</main>
+</body>
+</html>

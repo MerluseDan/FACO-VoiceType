@@ -1,38 +1,18 @@
-# Python
 __pycache__/
 *.py[cod]
-*.so
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
 *.egg-info/
-build/
-dist/
-
-# Environments and local state
 .venv/
 venv/
-env/
 .env
-.env.*
-config.json
-tested_release.json
-cuda_lib_paths
-
-# Models, recordings, logs, and generated packages
-models/
-recordings/
-*.wav
-*.flac
-*.mp3
+*.db
+*.sqlite3*
+*_logs/
+_logs/
+data/
 *.log
-*.tar.gz
-*.sha256
-
-# Editors and desktop files
-.idea/
-.vscode/
-*~
+node_modules/
+playwright-report/
+test-results/
 .DS_Store
+*.swp
+.faco-watch-*/
