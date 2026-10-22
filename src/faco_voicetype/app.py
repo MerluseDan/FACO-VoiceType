@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import json
 import logging
 import os
 import signal
 import sys
 import threading
-from datetime import datetime, timezone
-from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 from PySide6.QtCore import QObject, QTimer, Signal, Slot
@@ -20,7 +17,7 @@ from .config import ConfigStore, MouseBinding, Settings
 from .injector import inject_key, inject_text, session_type
 from .input_monitor import ButtonLearner, MultiButtonMouseMonitor, same_button_binding
 from .logging_setup import setup_logging
-from .paths import ensure_runtime_dirs, state_root
+from .paths import ensure_runtime_dirs
 from .transcriber import Transcriber
 from .system_pulse import PulseGuard, collect as collect_pulse
 from .ui import SettingsWindow, Tray, make_icon
@@ -81,9 +78,7 @@ class Controller(QObject):
         self.window.learn_enter_requested.connect(self.begin_learning_enter)
         self.window.pause_requested.connect(self.set_paused)
         self.window.test_model_requested.connect(self.test_model)
-        self.window.declare_tested_requested.connect(self.declare_tested)
 
-        self.window.set_tested_state(self.is_current_release_tested(), __version__)
         self.set_paused(self.paused)
         self.restart_monitor()
         self.update_system_pulse()
@@ -115,32 +110,6 @@ class Controller(QObject):
         self.window.pulse_label.setText(snap.compact())
         self.window.pulse_label.setToolTip(snap.details())
 
-
-    @staticmethod
-    def tested_marker_path() -> Path:
-        return state_root() / "tested_release.json"
-
-    def is_current_release_tested(self) -> bool:
-        try:
-            data = json.loads(self.tested_marker_path().read_text(encoding="utf-8"))
-            return bool(data.get("declared_by_user")) and data.get("version") == __version__
-        except Exception:
-            return False
-
-    @Slot()
-    def declare_tested(self) -> None:
-        path = self.tested_marker_path()
-        path.parent.mkdir(parents=True, exist_ok=True)
-        payload = {
-            "module_id": "faco.voicetype",
-            "version": __version__,
-            "declared_by_user": True,
-            "declared_at": datetime.now(timezone.utc).isoformat(),
-        }
-        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        self.window.set_tested_state(True, __version__)
-        self.set_status(f"Release v{__version__} marked tested by user.", "ready" if not self.paused else "paused")
-        log.info("User declared release tested: %s", payload)
 
     def _first_show(self):
         if not self.settings.start_minimized or self.settings.mouse.button_code is None:
