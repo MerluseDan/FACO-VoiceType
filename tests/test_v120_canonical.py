@@ -90,3 +90,14 @@ def test_installer_progress_step_count_matches_declared_total():
     declared = int(re.search(r"^TOTAL_STEPS=(\d+)$", text, re.M).group(1))
     calls = len(re.findall(r'^progress "', text, re.M))
     assert declared == calls, f"declared {declared} steps but found {calls} progress calls"
+
+
+def test_voice_type_has_no_manual_release_declaration_gate():
+    ui = (ROOT / "src" / "faco_voicetype" / "ui.py").read_text(encoding="utf-8")
+    controller = (ROOT / "src" / "faco_voicetype" / "app.py").read_text(encoding="utf-8")
+    assert "Declare Tested" not in ui
+    assert "declare_tested_requested" not in ui
+    assert "set_tested_state" not in ui
+    assert "tested_marker_path" not in controller
+    assert "declare_tested" not in controller
+    assert 'self.save_button = QPushButton("Save settings")' in ui
