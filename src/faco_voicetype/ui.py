@@ -55,7 +55,6 @@ class SettingsWindow(QMainWindow):
     learn_enter_requested = Signal()
     test_model_requested = Signal()
     pause_requested = Signal(bool)
-    declare_tested_requested = Signal()
 
     def __init__(self):
         super().__init__()
@@ -164,13 +163,9 @@ class SettingsWindow(QMainWindow):
         self.pause_button = QPushButton("Pause & unload model")
         self.pause_button.setCheckable(True)
         self.pause_button.toggled.connect(self.pause_requested.emit)
-        self.tested_button = QPushButton("Declare Tested")
-        self.tested_button.setToolTip("User release gate for FACO9000 recognition")
-        self.tested_button.clicked.connect(self.declare_tested_requested.emit)
         self.save_button = QPushButton("Save settings")
         self.save_button.clicked.connect(self._emit_save)
         actions.addWidget(self.pause_button)
-        actions.addWidget(self.tested_button)
         actions.addStretch(1)
         actions.addWidget(self.save_button)
         layout.addLayout(actions)
@@ -243,9 +238,6 @@ class SettingsWindow(QMainWindow):
             self.learn_button.setText("Press the desired mouse button now…" if active else "Map voice button…")
 
 
-    def set_tested_state(self, tested: bool, version: str) -> None:
-        self.tested_button.setText(f"Tested ✓ v{version}" if tested else f"Declare Tested • v{version}")
-
     def set_paused(self, paused: bool) -> None:
         self.pause_button.blockSignals(True)
         self.pause_button.setChecked(paused)
@@ -305,9 +297,6 @@ class Tray:
         if tooltip:
             self.tray.setToolTip(tooltip)
 
-
-    def set_tested_state(self, tested: bool, version: str) -> None:
-        self.tested_button.setText(f"Tested ✓ v{version}" if tested else f"Declare Tested • v{version}")
 
     def set_paused(self, paused: bool) -> None:
         self.pause_action.blockSignals(True)
